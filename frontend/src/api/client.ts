@@ -10,7 +10,13 @@ import type {
   RegisterData,
 } from '../types'
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1'
+// Get API URL from environment variable
+// For production, set VITE_API_URL in GitHub Actions secrets
+// For local development, defaults to localhost
+const API_BASE_URL = import.meta.env.VITE_API_URL || 
+  (import.meta.env.MODE === 'production' 
+    ? '' // Production should have VITE_API_URL set
+    : 'http://localhost:8000/api/v1') // Local development
 
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
@@ -28,7 +34,7 @@ apiClient.interceptors.request.use((config) => {
   return config
 })
 
-// Handle token expiration
+// Handle token expiration and connection errors
 apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
@@ -36,6 +42,14 @@ apiClient.interceptors.response.use(
       localStorage.removeItem('token')
       localStorage.removeItem('user')
       window.location.href = '/login'
+    }
+    // Handle connection refused errors
+    if (error.code === 'ERR_NETWORK' || error.message?.includes('ERR_CONNECTION_REFUSED')) {
+      console.error('Backend API is not available. Make sure the backend server is running.')
+      // Don't show error for auth endpoints to avoid blocking login page
+      if (!error.config?.url?.includes('/auth/')) {
+        error.apiUnavailable = true
+      }
     }
     return Promise.reject(error)
   }

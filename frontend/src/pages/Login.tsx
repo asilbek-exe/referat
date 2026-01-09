@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { BookOpen } from 'lucide-react'
+import BackendStatus from '../components/BackendStatus'
 
 const Login = () => {
   const [username, setUsername] = useState('')
@@ -20,7 +21,11 @@ const Login = () => {
       await login({ username, password })
       navigate('/dashboard')
     } catch (err: any) {
-      setError(err.response?.data?.detail || 'Login failed. Please check your credentials.')
+      if (err.code === 'ERR_NETWORK' || err.message?.includes('ERR_CONNECTION_REFUSED') || err.apiUnavailable) {
+        setError('Cannot connect to backend server. Please make sure the backend is running on http://localhost:8000')
+      } else {
+        setError(err.response?.data?.detail || 'Login failed. Please check your credentials.')
+      }
     } finally {
       setLoading(false)
     }
@@ -29,6 +34,7 @@ const Login = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
+        <BackendStatus />
         <div>
           <div className="flex justify-center">
             <BookOpen className="h-12 w-12 text-blue-600" />
