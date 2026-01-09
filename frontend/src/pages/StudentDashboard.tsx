@@ -21,11 +21,27 @@ const StudentDashboard = () => {
         progressAPI.getMyProgress(),
         progressAPI.getOverallProgress(),
       ])
-      setTasks(tasksData)
-      setProgress(progressData)
-      setOverallProgress(overallData)
+      setTasks(tasksData || [])
+      setProgress(progressData || [])
+      // Ensure overallData has the expected structure
+      if (overallData && typeof overallData === 'object' && 'overall_progress' in overallData) {
+        setOverallProgress(overallData)
+      } else {
+        // Set default if API returns unexpected format
+        setOverallProgress({
+          overall_progress: 0,
+          total_tasks: tasksData?.length || 0,
+          completed_tasks: 0
+        })
+      }
     } catch (error) {
       console.error('Failed to load data:', error)
+      // Set defaults on error
+      setOverallProgress({
+        overall_progress: 0,
+        total_tasks: 0,
+        completed_tasks: 0
+      })
     } finally {
       setLoading(false)
     }
@@ -53,7 +69,7 @@ const StudentDashboard = () => {
     <div className="px-4 py-6 sm:px-0">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">Dashboard</h1>
-        {overallProgress && (
+        {overallProgress && typeof overallProgress.overall_progress === 'number' && (
           <div className="bg-white rounded-lg shadow p-6">
             <div className="flex items-center mb-4">
               <TrendingUp className="h-6 w-6 text-blue-600 mr-2" />
@@ -67,12 +83,12 @@ const StudentDashboard = () => {
               <div className="w-full bg-gray-200 rounded-full h-4">
                 <div
                   className="bg-blue-600 h-4 rounded-full transition-all"
-                  style={{ width: `${overallProgress.overall_progress}%` }}
+                  style={{ width: `${Math.min(100, Math.max(0, overallProgress.overall_progress))}%` }}
                 />
               </div>
             </div>
             <p className="text-sm text-gray-600">
-              Completed {overallProgress.completed_tasks} of {overallProgress.total_tasks} tasks
+              Completed {overallProgress.completed_tasks || 0} of {overallProgress.total_tasks || 0} tasks
             </p>
           </div>
         )}
