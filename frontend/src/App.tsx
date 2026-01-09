@@ -18,11 +18,12 @@ const useHashRouter = import.meta.env.VITE_USE_HASH_ROUTER === 'true' ||
                      (import.meta.env.MODE === 'production' && import.meta.env.BASE_URL !== '/')
 
 function App() {
-  const RouterComponent = useHashRouter ? HashRouter : Router
+  // Use HashRouter for GitHub Pages, BrowserRouter for development
+  const AppRouter = useHashRouter ? HashRouter : Router
   
   return (
     <AuthProvider>
-      <RouterComponent basename={import.meta.env.BASE_URL}>
+      <AppRouter basename={import.meta.env.BASE_URL}>
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
@@ -72,7 +73,7 @@ function App() {
             />
           </Route>
         </Routes>
-      </RouterComponent>
+      </AppRouter>
     </AuthProvider>
   )
 }
