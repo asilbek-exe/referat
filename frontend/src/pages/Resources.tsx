@@ -15,9 +15,10 @@ const Resources = () => {
   const loadResources = async () => {
     try {
       const data = await resourcesAPI.getAll()
-      setResources(data)
+      setResources(Array.isArray(data) ? data : [])
     } catch (error) {
       console.error('Failed to load resources:', error)
+      setResources([])
     } finally {
       setLoading(false)
     }
@@ -63,11 +64,11 @@ const Resources = () => {
   }
 
   return (
-    <div className="px-4 py-6 sm:px-0">
-      <h1 className="text-3xl font-bold text-gray-900 mb-6">Language Learning Resources</h1>
+    <div className="px-4 py-4 sm:py-6 sm:px-0">
+      <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4 sm:mb-6">Language Learning Resources</h1>
 
-      <div className="mb-6">
-        <div className="flex space-x-2">
+      <div className="mb-4 sm:mb-6">
+        <div className="flex flex-wrap gap-2">
           <button
             onClick={() => setFilter('all')}
             className={`px-4 py-2 rounded-md ${
@@ -111,8 +112,8 @@ const Resources = () => {
         </div>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {filteredResources.map((resource) => (
+      <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+        {Array.isArray(filteredResources) && filteredResources.length > 0 ? filteredResources.map((resource) => (
           <div
             key={resource.id}
             className="bg-white rounded-lg shadow hover:shadow-md transition-shadow p-6"
@@ -143,10 +144,10 @@ const Resources = () => {
               <ExternalLink className="h-4 w-4 ml-1" />
             </a>
           </div>
-        ))}
+        )) : null}
       </div>
 
-      {filteredResources.length === 0 && (
+      {(!Array.isArray(filteredResources) || filteredResources.length === 0) && (
         <div className="text-center py-12 bg-white rounded-lg shadow">
           <p className="text-gray-500">No resources available in this category.</p>
         </div>

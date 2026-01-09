@@ -23,9 +23,10 @@ const AdminTasks = () => {
   const loadTasks = async () => {
     try {
       const data = await tasksAPI.getAll()
-      setTasks(data)
+      setTasks(Array.isArray(data) ? data : [])
     } catch (error) {
       console.error('Failed to load tasks:', error)
+      setTasks([])
     } finally {
       setLoading(false)
     }
@@ -96,46 +97,49 @@ const AdminTasks = () => {
   }
 
   return (
-    <div className="px-4 py-6 sm:px-0">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-gray-900">Task Management</h1>
+    <div className="px-4 py-4 sm:py-6 sm:px-0">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 sm:mb-6 gap-4">
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Task Management</h1>
         <button
           onClick={handleCreate}
-          className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+          className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 w-full sm:w-auto"
         >
           <Plus className="h-5 w-5 mr-2" />
           Create Task
         </button>
       </div>
 
-      <div className="bg-white rounded-lg shadow overflow-hidden">
+      <div className="bg-white rounded-lg shadow overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Title
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="hidden sm:table-cell px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Deadline
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="hidden md:table-cell px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Max Progress
               </th>
-              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-4 sm:px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Actions
               </th>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {tasks.map((task) => (
+            {Array.isArray(tasks) && tasks.length > 0 ? tasks.map((task) => (
               <tr key={task.id}>
-                <td className="px-6 py-4 whitespace-nowrap">
+                <td className="px-4 sm:px-6 py-4">
                   <div className="text-sm font-medium text-gray-900">{task.title}</div>
                   {task.description && (
-                    <div className="text-sm text-gray-500 line-clamp-1">{task.description}</div>
+                    <div className="text-xs sm:text-sm text-gray-500 line-clamp-1">{task.description}</div>
                   )}
+                  <div className="sm:hidden mt-1 text-xs text-gray-500">
+                    {task.deadline ? new Date(task.deadline).toLocaleDateString() : 'No deadline'} • {task.max_progress}%
+                  </div>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                <td className="hidden sm:table-cell px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   {task.deadline ? (
                     <div className="flex items-center">
                       <Calendar className="h-4 w-4 mr-1" />
@@ -145,28 +149,28 @@ const AdminTasks = () => {
                     'No deadline'
                   )}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                <td className="hidden md:table-cell px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   {task.max_progress}%
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                <td className="px-4 sm:px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                   <button
                     onClick={() => handleEdit(task)}
-                    className="text-blue-600 hover:text-blue-900 mr-4"
+                    className="text-blue-600 hover:text-blue-900 mr-2 sm:mr-4"
                   >
-                    <Edit className="h-5 w-5" />
+                    <Edit className="h-4 w-4 sm:h-5 sm:w-5" />
                   </button>
                   <button
                     onClick={() => handleDelete(task.id)}
                     className="text-red-600 hover:text-red-900"
                   >
-                    <Trash2 className="h-5 w-5" />
+                    <Trash2 className="h-4 w-4 sm:h-5 sm:w-5" />
                   </button>
                 </td>
               </tr>
-            ))}
+            )) : null}
           </tbody>
         </table>
-        {tasks.length === 0 && (
+        {(!Array.isArray(tasks) || tasks.length === 0) && (
           <div className="text-center py-12">
             <p className="text-gray-500">No tasks created yet.</p>
           </div>
@@ -175,7 +179,7 @@ const AdminTasks = () => {
 
       {showModal && (
         <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-          <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+          <div className="relative top-10 sm:top-20 mx-auto p-4 sm:p-5 border w-full max-w-md sm:w-96 shadow-lg rounded-md bg-white m-4">
             <h3 className="text-lg font-bold text-gray-900 mb-4">
               {editingTask ? 'Edit Task' : 'Create Task'}
             </h3>

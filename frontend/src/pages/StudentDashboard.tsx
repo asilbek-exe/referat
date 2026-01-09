@@ -66,9 +66,9 @@ const StudentDashboard = () => {
   }
 
   return (
-    <div className="px-4 py-6 sm:px-0">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Dashboard</h1>
+    <div className="px-4 py-4 sm:py-6 sm:px-0">
+      <div className="mb-6 sm:mb-8">
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Dashboard</h1>
         {overallProgress && typeof overallProgress.overall_progress === 'number' && (
           <div className="bg-white rounded-lg shadow p-6">
             <div className="flex items-center mb-4">
@@ -96,8 +96,8 @@ const StudentDashboard = () => {
 
       <div className="mb-6">
         <h2 className="text-2xl font-semibold text-gray-900 mb-4">Project-Based Tasks</h2>
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {tasks.map((task) => {
+        <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+          {Array.isArray(tasks) && tasks.length > 0 ? tasks.map((task) => {
             const taskProgress = getTaskProgress(task.id)
             const progressPercentage = (taskProgress / task.max_progress) * 100
 
@@ -145,9 +145,9 @@ const StudentDashboard = () => {
                 </Link>
               </div>
             )
-          })}
+          }) : null}
         </div>
-        {tasks.length === 0 && (
+        {(!Array.isArray(tasks) || tasks.length === 0) && (
           <div className="text-center py-12 bg-white rounded-lg shadow">
             <p className="text-gray-500">No tasks available yet.</p>
           </div>

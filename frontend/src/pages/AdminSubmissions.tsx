@@ -20,10 +20,12 @@ const AdminSubmissions = () => {
         submissionsAPI.getAll(),
         tasksAPI.getAll(),
       ])
-      setSubmissions(submissionsData)
-      setTasks(tasksData)
+      setSubmissions(Array.isArray(submissionsData) ? submissionsData : [])
+      setTasks(Array.isArray(tasksData) ? tasksData : [])
     } catch (error) {
       console.error('Failed to load data:', error)
+      setSubmissions([])
+      setTasks([])
     } finally {
       setLoading(false)
     }
@@ -69,10 +71,10 @@ const AdminSubmissions = () => {
   }
 
   return (
-    <div className="px-4 py-6 sm:px-0">
-      <h1 className="text-3xl font-bold text-gray-900 mb-6">Student Submissions</h1>
+    <div className="px-4 py-4 sm:py-6 sm:px-0">
+      <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4 sm:mb-6">Student Submissions</h1>
 
-      <div className="bg-white rounded-lg shadow overflow-hidden">
+      <div className="bg-white rounded-lg shadow overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
@@ -94,7 +96,7 @@ const AdminSubmissions = () => {
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {submissions.map((submission) => (
+            {Array.isArray(submissions) && submissions.length > 0 ? submissions.map((submission) => (
               <tr key={submission.id}>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="flex items-center">
@@ -132,10 +134,10 @@ const AdminSubmissions = () => {
                   </button>
                 </td>
               </tr>
-            ))}
+            )) : null}
           </tbody>
         </table>
-        {submissions.length === 0 && (
+        {(!Array.isArray(submissions) || submissions.length === 0) && (
           <div className="text-center py-12">
             <p className="text-gray-500">No submissions yet.</p>
           </div>
@@ -144,7 +146,7 @@ const AdminSubmissions = () => {
 
       {selectedSubmission && (
         <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-          <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+          <div className="relative top-10 sm:top-20 mx-auto p-4 sm:p-5 border w-full max-w-md sm:w-96 shadow-lg rounded-md bg-white m-4">
             <h3 className="text-lg font-bold text-gray-900 mb-4">Update Progress</h3>
             <div className="mb-4">
               <p className="text-sm text-gray-600 mb-2">
