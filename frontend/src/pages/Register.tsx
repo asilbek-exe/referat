@@ -26,7 +26,8 @@ const Register = () => {
       navigate('/dashboard')
     } catch (err: any) {
       if (err.code === 'ERR_NETWORK' || err.message?.includes('ERR_CONNECTION_REFUSED') || err.apiUnavailable) {
-        setError('Cannot connect to backend server. Please make sure the backend is running on http://localhost:8000')
+        const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+        setError(`Cannot connect to backend server at ${apiUrl}. Please make sure the backend is running.`)
       } else {
         setError(err.response?.data?.detail || 'Registration failed. Please try again.')
       }
