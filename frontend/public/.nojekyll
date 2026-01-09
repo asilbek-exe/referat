@@ -1,0 +1,3 @@
+# Prevent GitHub Pages from processing this as Jekyll
+# This file ensures static files starting with _ are served correctly
+

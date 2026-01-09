@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { Settings, FileText, Users, BookOpen } from 'lucide-react'
+import { FileText, Users, BookOpen } from 'lucide-react'
 
 const AdminDashboard = () => {
   return (

@@ -94,7 +94,7 @@ const TaskDetail = () => {
 
   const progressValue = progress?.progress_value || 0
   const progressPercentage = (progressValue / task.max_progress) * 100
-  const isDeadlinePassed = task.deadline && new Date(task.deadline) < new Date()
+  const isDeadlinePassed = Boolean(task.deadline && new Date(task.deadline) < new Date())
 
   return (
     <div className="px-4 py-6 sm:px-0">

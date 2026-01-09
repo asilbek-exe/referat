@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { submissionsAPI, tasksAPI, progressAPI } from '../api/client'
-import type { Submission, Task, Progress } from '../types'
+import type { Submission, Task } from '../types'
 import { FileText, User, Calendar, TrendingUp } from 'lucide-react'
 
 const AdminSubmissions = () => {
