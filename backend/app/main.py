@@ -14,13 +14,14 @@ app = FastAPI(
 )
 
 # CORS middleware for frontend communication
-# WARNING: This allows all origins - only for local development!
+# Allow all origins for development (like your other project)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],  # Allow all origins
-    allow_credentials=False,  # Must be False when allow_origins=["*"]
+    allow_credentials=True,  # Allow credentials (like your other project)
     allow_methods=["*"],  # Allow all methods
     allow_headers=["*"],  # Allow all headers
+    expose_headers=["*"],  # Expose all headers
 )
 
 # Include API routes
