@@ -23,11 +23,20 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     
     if (token && storedUser) {
       try {
-        setUser(JSON.parse(storedUser))
-        // Verify token is still valid
-        authAPI.getMe().catch(() => {
-          logout()
-        })
+        const parsedUser = JSON.parse(storedUser)
+        console.log('Loaded user from storage:', parsedUser)
+        console.log('User role:', parsedUser.role, 'Type:', typeof parsedUser.role)
+        setUser(parsedUser)
+        // Verify token is still valid and refresh user data
+        authAPI.getMe()
+          .then((freshUserData) => {
+            console.log('Fresh user data from API:', freshUserData)
+            setUser(freshUserData)
+            localStorage.setItem('user', JSON.stringify(freshUserData))
+          })
+          .catch(() => {
+            logout()
+          })
       } catch (error) {
         logout()
       }
@@ -40,6 +49,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     localStorage.setItem('token', response.access_token)
     
     const userData = await authAPI.getMe()
+    console.log('User data from API:', userData)
+    console.log('User role:', userData.role, 'Type:', typeof userData.role)
     setUser(userData)
     localStorage.setItem('user', JSON.stringify(userData))
   }
@@ -56,7 +67,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setUser(null)
   }
 
-  const isAdmin = user?.role === 'admin'
+  // Check if user is admin - handle both string and enum cases
+  const isAdmin = user?.role === 'admin' || user?.role === 'ADMIN' || (user?.role as any)?.value === 'admin'
 
   return (
     <AuthContext.Provider value={{ user, loading, login, register, logout, isAdmin }}>
