@@ -25,7 +25,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       try {
         const parsedUser = JSON.parse(storedUser)
         // Validate that parsed user is actually a user object, not HTML
-        if (parsedUser && typeof parsedUser === 'object' && !parsedUser.includes && parsedUser.id) {
+        // Check if it's an object with an id property (not a string/HTML)
+        if (parsedUser && typeof parsedUser === 'object' && !Array.isArray(parsedUser) && parsedUser.id && typeof parsedUser.id === 'number') {
           console.log('Loaded user from storage:', parsedUser)
           console.log('User role:', parsedUser.role, 'Type:', typeof parsedUser.role)
           setUser(parsedUser)
@@ -33,7 +34,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           authAPI.getMe()
             .then((freshUserData) => {
               // Validate response is JSON, not HTML
-              if (freshUserData && typeof freshUserData === 'object' && !freshUserData.includes && freshUserData.id) {
+              if (freshUserData && typeof freshUserData === 'object' && !Array.isArray(freshUserData) && freshUserData.id && typeof freshUserData.id === 'number') {
                 console.log('Fresh user data from API:', freshUserData)
                 setUser(freshUserData)
                 localStorage.setItem('user', JSON.stringify(freshUserData))
@@ -70,7 +71,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     
     const userData = await authAPI.getMe()
     // Validate response is JSON, not HTML
-    if (userData && typeof userData === 'object' && !userData.includes && userData.id) {
+    // Check if it's an object with an id property (not a string/HTML)
+    if (userData && typeof userData === 'object' && !Array.isArray(userData) && userData.id && typeof userData.id === 'number') {
       console.log('User data from API:', userData)
       console.log('User role:', userData.role, 'Type:', typeof userData.role)
       setUser(userData)
