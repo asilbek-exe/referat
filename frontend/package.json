@@ -8,7 +8,7 @@
     "build": "tsc && vite build",
     "build:github": "VITE_BASE_PATH=/referat/ VITE_USE_HASH_ROUTER=true tsc && vite build",
     "preview": "vite preview",
-    "preview:github": "npm run build:github && vite preview --base /referat/",
+    "preview:github": "npm run build:github && vite preview --base /referat/ --port 4173",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "deploy": "npm run build:github && gh-pages -d dist"
   },

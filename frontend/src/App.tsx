@@ -19,11 +19,13 @@ const useHashRouter = import.meta.env.VITE_USE_HASH_ROUTER === 'true' ||
 
 function App() {
   // Use HashRouter for GitHub Pages, BrowserRouter for development
+  // Note: HashRouter doesn't use basename, it uses hash routing
   const AppRouter = useHashRouter ? HashRouter : Router
+  const basename = useHashRouter ? undefined : import.meta.env.BASE_URL
   
   return (
     <AuthProvider>
-      <AppRouter basename={import.meta.env.BASE_URL}>
+      <AppRouter basename={basename}>
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />

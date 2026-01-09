@@ -13,7 +13,7 @@ from app.models.user import User
 from app.models.task import Task
 from app.models.submission import Submission
 from app.schemas.submission import SubmissionResponse
-from datetime import datetime
+from datetime import datetime, timezone
 
 router = APIRouter()
 
@@ -37,8 +37,10 @@ def submit_task(
         raise HTTPException(status_code=404, detail="Task not found")
     
     # Check deadline if set
-    if task.deadline and datetime.utcnow() > task.deadline:
-        raise HTTPException(status_code=400, detail="Task deadline has passed")
+    if task.deadline:
+        now = datetime.now(timezone.utc)
+        if now > task.deadline:
+            raise HTTPException(status_code=400, detail="Task deadline has passed")
     
     file_path = None
     file_name = None
@@ -52,7 +54,7 @@ def submit_task(
         
         # Save file
         file_extension = os.path.splitext(file.filename)[1] if file.filename else ".pdf"
-        file_name = f"{current_user.id}_{task_id}_{datetime.utcnow().timestamp()}{file_extension}"
+        file_name = f"{current_user.id}_{task_id}_{datetime.now(timezone.utc).timestamp()}{file_extension}"
         file_path = str(UPLOAD_DIR / file_name)
         
         with open(file_path, "wb") as f:
