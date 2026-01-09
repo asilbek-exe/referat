@@ -22,6 +22,7 @@ const apiClient = axios.create({
   baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
+    'ngrok-skip-browser-warning': 'true',  // Skip ngrok browser warning
   },
 })
 
@@ -39,10 +40,23 @@ apiClient.interceptors.response.use(
   (response) => {
     // Check if response is HTML (error page) instead of JSON
     const contentType = response.headers['content-type'] || ''
-    if (contentType.includes('text/html')) {
+    
+    // Check if response data is HTML (even if content-type says JSON)
+    const isHtml = contentType.includes('text/html') || 
+                   (typeof response.data === 'string' && (
+                     response.data.trim().startsWith('<!DOCTYPE html>') ||
+                     response.data.trim().startsWith('<!doctype html>') ||
+                     response.data.includes('<html') ||
+                     response.data.includes('ngrok') && response.data.includes('ERR_NGROK')
+                   ))
+    
+    if (isHtml) {
       console.error('API returned HTML instead of JSON. Backend may be down or ngrok tunnel expired.')
-      const error = new Error('Backend returned HTML instead of JSON. The API server may be down or the tunnel expired.')
+      console.error('Content-Type:', contentType)
+      console.error('Response preview:', typeof response.data === 'string' ? response.data.substring(0, 300) : 'Not a string')
+      const error: any = new Error('Backend returned HTML instead of JSON. The API server may be down or the tunnel expired.')
       error.name = 'HTMLResponseError'
+      error.isHtmlError = true
       return Promise.reject(error)
     }
     return response
@@ -79,7 +93,10 @@ export const authAPI = {
     formData.append('username', credentials.username)
     formData.append('password', credentials.password)
     const response = await axios.post(`${API_BASE_URL}/auth/login`, formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
+      headers: { 
+        'Content-Type': 'multipart/form-data',
+        'ngrok-skip-browser-warning': 'true',  // Skip ngrok browser warning
+      },
     })
     return response.data
   },
@@ -134,6 +151,7 @@ export const submissionsAPI = {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'multipart/form-data',
+          'ngrok-skip-browser-warning': 'true',  // Skip ngrok browser warning
         },
       }
     )

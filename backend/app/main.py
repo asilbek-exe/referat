@@ -2,7 +2,7 @@
 Main FastAPI application entry point
 Language Learning & Student Motivation Platform
 """
-from fastapi import FastAPI
+from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from app.api.v1.api import api_router
@@ -23,6 +23,14 @@ app.add_middleware(
     allow_headers=["*"],  # Allow all headers
     expose_headers=["*"],  # Expose all headers
 )
+
+# Middleware to add ngrok-skip-browser-warning header
+@app.middleware("http")
+async def add_ngrok_header(request: Request, call_next):
+    response = await call_next(request)
+    # Add ngrok-skip-browser-warning header to skip ngrok browser warning page
+    response.headers["ngrok-skip-browser-warning"] = "true"
+    return response
 
 # Include API routes
 app.include_router(api_router, prefix="/api/v1")
