@@ -68,7 +68,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   }
 
   // Check if user is admin - handle both string and enum cases
-  const isAdmin = user?.role === 'admin' || user?.role === 'ADMIN' || (user?.role as any)?.value === 'admin'
+  const isAdmin = user?.role === 'admin' || String(user?.role).toLowerCase() === 'admin'
 
   return (
     <AuthContext.Provider value={{ user, loading, login, register, logout, isAdmin }}>

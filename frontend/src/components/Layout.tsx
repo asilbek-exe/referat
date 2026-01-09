@@ -50,12 +50,6 @@ const Layout = () => {
               </div>
             </div>
             <div className="flex items-center space-x-2 sm:space-x-4">
-              {/* Debug info - remove in production */}
-              {process.env.NODE_ENV === 'development' && (
-                <span className="text-xs text-gray-500">
-                  Role: {user?.role} | Admin: {isAdmin ? 'Yes' : 'No'}
-                </span>
-              )}
               <span className="hidden sm:inline text-xs sm:text-sm text-gray-700 truncate max-w-[100px] sm:max-w-none">
                 {user?.full_name || user?.username}
                 {isAdmin && <span className="ml-1 text-blue-600">(Admin)</span>}
