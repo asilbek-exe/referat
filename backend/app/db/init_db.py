@@ -24,11 +24,21 @@ def create_admin_user():
             return
         
         # Create admin user
+        try:
+            hashed_password = get_password_hash("admin123")
+        except Exception as e:
+            # Fallback: use bcrypt directly if passlib fails
+            import bcrypt
+            hashed_password = bcrypt.hashpw(
+                "admin123".encode('utf-8'),
+                bcrypt.gensalt()
+            ).decode('utf-8')
+        
         admin_user = User(
             email="admin@example.com",
             username="admin",
             full_name="Administrator",
-            hashed_password=get_password_hash("admin123"),
+            hashed_password=hashed_password,
             role=UserRole.ADMIN,
             is_active=True
         )

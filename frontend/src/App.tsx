@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
+import { BrowserRouter as Router, Routes, Route, Navigate, HashRouter } from 'react-router-dom'
 import { AuthProvider } from './contexts/AuthContext'
 import ProtectedRoute from './components/ProtectedRoute'
 import Login from './pages/Login'
@@ -12,10 +12,17 @@ import AdminSubmissions from './pages/AdminSubmissions'
 import AdminResources from './pages/AdminResources'
 import Layout from './components/Layout'
 
+// Use HashRouter for GitHub Pages compatibility (avoids 404 errors)
+// For production with proper server config, you can switch to BrowserRouter
+const useHashRouter = import.meta.env.VITE_USE_HASH_ROUTER === 'true' || 
+                     (import.meta.env.MODE === 'production' && import.meta.env.BASE_URL !== '/')
+
 function App() {
+  const RouterComponent = useHashRouter ? HashRouter : Router
+  
   return (
     <AuthProvider>
-      <Router>
+      <RouterComponent basename={import.meta.env.BASE_URL}>
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
@@ -65,7 +72,7 @@ function App() {
             />
           </Route>
         </Routes>
-      </Router>
+      </RouterComponent>
     </AuthProvider>
   )
 }

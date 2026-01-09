@@ -6,7 +6,7 @@ from typing import List
 
 
 class Settings(BaseSettings):
-    # Database
+    # Database (psycopg 3 compatible - can use postgresql:// or postgresql+psycopg://)
     DATABASE_URL: str = "postgresql://postgres:postgres@localhost:5432/language_learning"
     
     # JWT

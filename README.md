@@ -102,10 +102,12 @@ This platform replaces the original Tkinter desktop application with a productio
 
 ### Prerequisites
 
-- Python 3.11+
+- Python 3.11-3.14 (3.11 or 3.12 recommended for best compatibility)
 - Node.js 18+
 - PostgreSQL 15+ (or use Docker)
 - Docker and Docker Compose (optional)
+
+**Note:** If you encounter build errors with Python 3.14, the requirements have been updated to use `psycopg` (v3) instead of `psycopg2-binary` for better compatibility.
 
 ### Installation
 
@@ -290,15 +292,82 @@ cd frontend
 npm run lint
 ```
 
+## Troubleshooting
+
+### Python 3.14 Installation Issues
+
+If you encounter build errors when installing dependencies with Python 3.14:
+
+1. **Option 1 (Recommended):** Use Python 3.11 or 3.12 instead:
+   ```bash
+   # Create venv with specific Python version
+   python3.12 -m venv venv
+   ```
+
+2. **Option 2:** The requirements have been updated to use `psycopg` (v3) which has better Python 3.14 support. Try installing again:
+   ```bash
+   pip install --upgrade pip
+   pip install -r requirements.txt
+   ```
+
+3. **Option 3:** If psycopg still fails, you can use psycopg2-binary with a newer version:
+   ```bash
+   pip install psycopg2-binary --upgrade
+   ```
+
+### Database Connection Issues
+
+- Ensure PostgreSQL is running: `pg_isready` or `brew services list` (macOS)
+- Check DATABASE_URL format in `.env` file
+- For psycopg 3, the connection string can use `postgresql://` or `postgresql+psycopg://`
+
+### Port Already in Use
+
+- Change ports in `docker-compose.yml` or kill the process using the port
+- Backend: Default port 8000
+- Frontend: Default port 3000
+
 ## Production Deployment
+
+### Frontend (GitHub Pages)
+
+The frontend is configured for automatic deployment to GitHub Pages:
+
+1. **Enable GitHub Pages**:
+   - Go to repository **Settings** → **Pages**
+   - Select **Source**: **GitHub Actions**
+
+2. **Configure Repository Name** (if different):
+   - Update `VITE_BASE_PATH` in `.github/workflows/deploy-frontend.yml`
+   - Update `build:github` script in `frontend/package.json`
+
+3. **Set API URL** (if backend is hosted):
+   - Add secret `VITE_API_URL` in **Settings** → **Secrets and variables** → **Actions**
+   - Set to your backend API URL (e.g., `https://your-api.com/api/v1`)
+
+4. **Deploy**:
+   - Push to `main` branch (auto-deploys)
+   - Or manually trigger in **Actions** tab
+
+See [DEPLOYMENT.md](./DEPLOYMENT.md) for detailed instructions.
+
+### Backend
 
 1. Set strong `SECRET_KEY` in environment variables
 2. Use production database (not SQLite)
-3. Configure proper CORS origins
+3. Configure proper CORS origins (include GitHub Pages URL)
 4. Set up reverse proxy (nginx)
 5. Use HTTPS
 6. Configure file storage (S3, etc.)
 7. Set up monitoring and logging
+
+**Important**: Update backend CORS settings to allow your GitHub Pages domain:
+```python
+CORS_ORIGINS = [
+    "https://yourusername.github.io",
+    "https://yourusername.github.io/Nasiba-holajon"
+]
+```
 
 ## License
 
