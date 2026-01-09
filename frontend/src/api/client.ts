@@ -36,8 +36,25 @@ apiClient.interceptors.request.use((config) => {
 
 // Handle token expiration and connection errors
 apiClient.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    // Check if response is HTML (error page) instead of JSON
+    const contentType = response.headers['content-type'] || ''
+    if (contentType.includes('text/html')) {
+      console.error('API returned HTML instead of JSON. Backend may be down or ngrok tunnel expired.')
+      const error = new Error('Backend returned HTML instead of JSON. The API server may be down or the tunnel expired.')
+      error.name = 'HTMLResponseError'
+      return Promise.reject(error)
+    }
+    return response
+  },
   (error) => {
+    // Check if error response is HTML
+    if (error.response?.data && typeof error.response.data === 'string' && error.response.data.includes('<!DOCTYPE html>')) {
+      console.error('API returned HTML error page. Backend may be down or ngrok tunnel expired.')
+      error.isHtmlError = true
+      error.message = 'Backend API is not responding correctly. The server may be down or the tunnel expired.'
+    }
+    
     if (error.response?.status === 401) {
       localStorage.removeItem('token')
       localStorage.removeItem('user')

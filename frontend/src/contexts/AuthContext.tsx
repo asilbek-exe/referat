@@ -24,21 +24,41 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     if (token && storedUser) {
       try {
         const parsedUser = JSON.parse(storedUser)
-        console.log('Loaded user from storage:', parsedUser)
-        console.log('User role:', parsedUser.role, 'Type:', typeof parsedUser.role)
-        setUser(parsedUser)
-        // Verify token is still valid and refresh user data
-        authAPI.getMe()
-          .then((freshUserData) => {
-            console.log('Fresh user data from API:', freshUserData)
-            setUser(freshUserData)
-            localStorage.setItem('user', JSON.stringify(freshUserData))
-          })
-          .catch(() => {
-            logout()
-          })
+        // Validate that parsed user is actually a user object, not HTML
+        if (parsedUser && typeof parsedUser === 'object' && !parsedUser.includes && parsedUser.id) {
+          console.log('Loaded user from storage:', parsedUser)
+          console.log('User role:', parsedUser.role, 'Type:', typeof parsedUser.role)
+          setUser(parsedUser)
+          // Verify token is still valid and refresh user data
+          authAPI.getMe()
+            .then((freshUserData) => {
+              // Validate response is JSON, not HTML
+              if (freshUserData && typeof freshUserData === 'object' && !freshUserData.includes && freshUserData.id) {
+                console.log('Fresh user data from API:', freshUserData)
+                setUser(freshUserData)
+                localStorage.setItem('user', JSON.stringify(freshUserData))
+              } else {
+                console.error('Invalid user data received from API')
+                // Keep stored user if API returns invalid data
+              }
+            })
+            .catch((error) => {
+              console.error('Failed to refresh user data:', error)
+              // Only logout if it's an auth error, not a connection error
+              if (error.response?.status === 401) {
+                logout()
+              }
+              // Otherwise keep the stored user
+            })
+        } else {
+          // Invalid stored user, clear it
+          localStorage.removeItem('user')
+          localStorage.removeItem('token')
+        }
       } catch (error) {
-        logout()
+        console.error('Failed to parse stored user:', error)
+        localStorage.removeItem('user')
+        localStorage.removeItem('token')
       }
     }
     setLoading(false)
@@ -49,10 +69,15 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     localStorage.setItem('token', response.access_token)
     
     const userData = await authAPI.getMe()
-    console.log('User data from API:', userData)
-    console.log('User role:', userData.role, 'Type:', typeof userData.role)
-    setUser(userData)
-    localStorage.setItem('user', JSON.stringify(userData))
+    // Validate response is JSON, not HTML
+    if (userData && typeof userData === 'object' && !userData.includes && userData.id) {
+      console.log('User data from API:', userData)
+      console.log('User role:', userData.role, 'Type:', typeof userData.role)
+      setUser(userData)
+      localStorage.setItem('user', JSON.stringify(userData))
+    } else {
+      throw new Error('Invalid response from server. The API may be down or the tunnel expired.')
+    }
   }
 
   const register = async (data: RegisterData) => {

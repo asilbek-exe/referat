@@ -20,11 +20,13 @@ const Login = () => {
       await login({ username, password })
       navigate('/dashboard')
     } catch (err: any) {
-      if (err.code === 'ERR_NETWORK' || err.message?.includes('ERR_CONNECTION_REFUSED') || err.apiUnavailable) {
+      if (err.isHtmlError || (err.message && err.message.includes('HTML'))) {
+        setError('Backend API is not responding correctly. The server may be down or the tunnel expired. Please check your backend connection.')
+      } else if (err.code === 'ERR_NETWORK' || err.message?.includes('ERR_CONNECTION_REFUSED') || err.apiUnavailable) {
         const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000'
         setError(`Cannot connect to backend server at ${apiUrl}. Please make sure the backend is running.`)
       } else {
-        setError(err.response?.data?.detail || 'Login failed. Please check your credentials.')
+        setError(err.response?.data?.detail || err.message || 'Login failed. Please check your credentials.')
       }
     } finally {
       setLoading(false)
